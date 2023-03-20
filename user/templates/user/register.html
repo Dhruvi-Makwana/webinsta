@@ -1,0 +1,109 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="{% static 'css/base.css' %}" rel="stylesheet" type="text/css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+
+    <title>Instagram</title>
+</head>
+<body>
+    <h2 class="fw-bold mt-3 text-uppercase text-center">Register yourself....</h2>
+    <div class="container-fluid row">
+        <div class="col p-5">
+            <img src="{% static 'images/social_media.jpg' %}" class="register_image rounded-3">
+        </div>
+
+        <div class="register_div col p-5 border-start border-white">
+            <form  method="post" enctype="multipart/form-data" id="user_form">
+                {% csrf_token %}
+                <div>
+                    <img src="" alt="No profile photo yet" height="150px" width="150px" id="target" class="rounded-5">
+                </div>
+                <div class="mb-3">
+                    <label for="img" class="btn"><span>Add Profile</span></label>
+                    <input type="file" id="img"  accept="image/*" style="display:none" name="profile">
+                </div>
+                <div class="mb-3 mt-3">
+                    <input type="text" class="form-control" id="first_name" placeholder="Enter your Fisrt Name" name="first_name">
+                </div>
+                <div class="mb-3">
+                    <input type="text" class="form-control"  id="last_name" placeholder="Enter your last name"name="last_name">
+                </div>
+                <div class="mb-3">
+                    <input type="text" class="form-control"  id="user_name" placeholder="username" name="username">
+                </div>
+
+                <div class="mb-3">
+                    <input type="email" class="form-control"  id="email" placeholder="Enter email" name="email">
+                </div>
+                <div class="mb-3">
+                    <input type="password" class="form-control" id="password" placeholder="Set password" name="password">
+                </div>
+
+                <div class="mb-3">
+                    <input type="date" class="form-control" id="birth_date" placeholder="Enter birth_date" name="birth_date">
+                </div>
+                <input type="submit" class="btn btn-primary  mx-auto d-block" value="submit">
+            </form>
+        </div>
+
+
+</div>
+</div>
+</body>
+
+<script>
+    function showImage(img,target) {
+  var fr=new FileReader();
+  // when image is loaded, set the src of the image where you want to display it
+  fr.onload = function(e) { target.src = this.result; };
+  img.addEventListener("change",function() {
+    // fill fr with image data
+    fr.readAsDataURL(img.files[0]);
+  });
+}
+
+var src = document.getElementById("img");
+var target = document.getElementById("target");
+showImage(src,target);
+
+
+
+
+
+
+//user-register using AJAX
+$(document).on("submit", "#user_form", function (event) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    var formData = new FormData(this);
+    $.ajax({
+        method: 'POST',
+        headers: {'X-CSRFToken': '{{ csrf_token }}'},
+        url: "/user_register/",
+        data: formData,
+        contentType: false,
+        success: function (data){
+            if(data){
+               alert("user created.")
+                }  
+          window.location = '/login/';
+        },
+        error: function() {
+            alert('enter a valid data')
+        }, 
+        cache: false,
+        contentType: false,
+        processData: false
+    });
+    return false;
+})
+</script>
+</html>
