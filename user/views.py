@@ -3,16 +3,19 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
 from rest_framework import status
-from .models import User,PostImage
+from .models import User,PostImage, Post, Comment
 from rest_framework.response import Response
-from .serializer import UserSerializer,LoginSerializer, PostSerializer, PostImageSerializer
+from .serializer import UserSerializer, LoginSerializer, \
+    PostSerializer, PostImageSerializer, Commentserializer, SaveCommentserializer
 from rest_framework.views import APIView
 from rest_framework.renderers import TemplateHTMLRenderer
 from django.shortcuts import redirect, reverse
 from rest_framework.parsers import JSONParser, MultiPartParser
 from django.contrib.auth import authenticate
-from django.contrib.auth import login
-from rest_framework.permissions import AllowAny,IsAuthenticated
+from django.contrib.auth import login,logout
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from django.http import JsonResponse
+from django.db.models import Prefetch
 
 
 class RegisterView(APIView):
@@ -22,10 +25,7 @@ class RegisterView(APIView):
     parser_classes = (JSONParser, MultiPartParser)
 
     def get(self, request, *args, **kwargs):
-
-        users = User.objects.all()
-        serializer = UserSerializer(users, many=True)
-        return Response({'USERS': serializer.data}, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
         user_serializer = UserSerializer(data=request.data)
@@ -60,11 +60,21 @@ class LoginView(APIView):
 
 class HomePage(APIView):
     template_name = 'user/base.html'
+
+    def get(self, request):
+        return render(request, self.template_name)
+
+
+class PostPage(APIView):
+
+    template_name = 'user/base.html'
     renderer_classes = [TemplateHTMLRenderer]
     parser_classes = (JSONParser, MultiPartParser)
     permission_classes = [IsAuthenticated]
+
     def get(self, request):
-        return Response(status=status.HTTP_200_OK)
+        posts = Post.objects.all()
+        return JsonResponse({'PostData': list(PostSerializer(posts, many=True).data)})
 
     def post(self, request, *args, **kwargs):
         data = request.data
@@ -75,15 +85,61 @@ class HomePage(APIView):
         post_serializer.is_valid()
         get_post = post_serializer.save()
         PostImage.objects.create(images=request.data['images'], post=get_post)
+
         return Response({'post_id': post_serializer.data}, status=status.HTTP_201_CREATED)
 
     def patch(self, request, *args, **kwargs):
-        breakpoint()
+
         user = request.user
         serializer = UserSerializer(instance=user, data=request.data, partial=True)
         if serializer.is_valid():
-            save_user = serializer.save()
-            save_user.set_password(save_user.password)
             serializer.save()
-            return Response({'update_user_success': serializer.data}, status=status.HTTP_202_ACCEPTED)
-        return Response(serializer.errors, status=status.HTTP_406_NOT_ACCEPTABLE)
+
+        return Response({'update_user_success': serializer.data}, status=status.HTTP_202_ACCEPTED)
+
+
+class AllComments(APIView):
+    def get(self, request, *args, **kwargs):
+        return JsonResponse({'GetComments': list(Commentserializer(Comment.objects.filter(post=kwargs.get('pk')).order_by('-id'), many=True).data)})
+
+
+class SaveComments(APIView):
+    def get(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_200_OK)
+
+    def post(self, request, *args, **kwargs):
+
+        data = request.data.copy()
+        user = request.user
+        data['commented_by'] = user.id
+        comment = SaveCommentserializer(data=data)
+        comment.is_valid()
+        comment.save()
+        return Response({'comment_id': comment.data}, status=status.HTTP_201_CREATED)
+
+
+class LogoutView(APIView):
+    def post(self, request):
+        logout(request)
+        return Response(status=status.HTTP_200_OK)
+
+    # get_post_data = Post.objects.prefetch_related('post_image').values('id', 'content', 'created_by__username',
+        #                                           'created_by__profile', 'post_image__images')\
+        #                 | Post.objects.prefetch_related('comments').values('description', 'commented_by__username')
+
+
+
+
+#  def get_comments(self, obj):
+#         return Commentserializer(Comment.objects.filter(post=obj).order_by('-id')[0:2]).data
+   # comments = Post.objects.prefetch_related(Prefetch('post_image'),
+        #     Prefetch('comments')).values('comments__description',
+        #                                  'comments__commented_by__username','comments__created_at').order_by('-id')
+        #
+        # get_post_data = Post.objects.prefetch_related('post_image').values('id', 'content', 'created_by__username', 'created_by__profile', 'post_image__images')
+        # get_post_data = Post.objects.prefetch_related(Prefetch('post_image'),
+        #     Prefetch('comments')).values('id', 'content', 'created_by__username',
+        #                                  'created_by__profile', 'post_image__images', 'comments__description',
+        #                                  'comments__commented_by__username', 'comments__created_at').order_by('-id')
+        #
+        # return JsonResponse({'PostData': list(get_post_data)})

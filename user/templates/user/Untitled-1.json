@@ -1,0 +1,81 @@
+{
+"GetComments": [
+{
+"id": 413,
+"description": "hii",
+"post__id": 48,
+"commented_by__username": "nayan",
+"created_at": "2023-03-23T12:37:01.612Z"
+},
+{
+"id": 412,
+"description": "hii",
+"post__id": 48,
+"commented_by__username": "nayan",
+"created_at": "2023-03-23T12:37:00.182Z"
+},
+{
+"id": 411,
+"description": "hii",
+"post__id": 48,
+"commented_by__username": "nayan",
+"created_at": "2023-03-23T12:36:57.169Z"
+},
+{
+"id": 410,
+"description": "commentf",
+"post__id": 48,
+"commented_by__username": "nayan",
+"created_at": "2023-03-23T12:35:54.316Z"
+},
+{
+"id": 409,
+"description": "post 71 comment",
+"post__id": 71,
+"commented_by__username": "hetvi",
+"created_at": "2023-03-23T11:36:29.743Z"
+},
+{
+"id": 408,
+"description": "on postobject 70",
+"post__id": 70,
+"commented_by__username": "nayan123",
+"created_at": "2023-03-23T11:35:23.535Z"
+},
+{
+"id": 407,
+"description": "on ost object 71",
+"post__id": 71,
+"commented_by__username": "nayan123",
+"created_at": "2023-03-23T11:34:57.338Z"
+},
+{
+"id": 406,
+"description": "on post object 70",
+"post__id": 70,
+"commented_by__username": "nayan123",
+"created_at": "2023-03-23T11:34:41.690Z"
+},
+{
+"id": 405,
+"description": "on post object 71",
+"post__id": 71,
+"commented_by__username": "dhaval_gojiya@34",
+"created_at": "2023-03-23T11:34:22.026Z"
+},
+{
+"id": 404,
+"description": "on p[ost object 70",
+"post__id": 70,
+"commented_by__username": "hetvi",
+"created_at": "2023-03-23T11:34:06.097Z"
+},
+{
+"id": 403,
+"description": "on post object 48",
+"post__id": 48,
+"commented_by__username": "nayan123",
+"created_at": "2023-03-23T11:33:48.996Z"
+}
+]
+}

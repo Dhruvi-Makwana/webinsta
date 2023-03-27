@@ -9,51 +9,53 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
-
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+    <script src="https://use.fontawesome.com/0206006232.js"></script>
+    
     <link rel="stylesheet" href="{% static 'css/base.css' %}"  type="text/css">
     <script src="{% static 'js/base.js' %}"></script>
     <title>Instagram </title>
 </head>
+
 <body>
-
-
-    <div class="container-fluid">
-
+    <div>
         <div class="mt-3 row header_position">
             <div class="col-2 ms-3">
                 <img src="{% static 'images/logo2.png' %}" height="50px" width="50px">
             </div>
                 
             <div class="col">
-                <a type="button" href="#" class="float-end btn border text-black">Logout</a>
+                <a type="button" href="{% url 'login' %}" class="float-end btn border text-black" id="logout-button">Logout</a>
             </div>
         </div>
+
 
         <!--
             post card stating from here....
         -->
-        <div class="mt-3">
-            <div class="card center_div">
-
+        <div ng-app="ShowPostApp" ng-controller="postCtrl">
+        <div class="mt-3" ng-repeat="showdata in myPostData" >
+            <div class="card center_div">  
                 <!--
                     card-header to show insta username
                 -->
-                <div class="card-header">
+                <div class="card-header">   
                     <div class="row">
                         <div class="col-1">
-                            <img src="{% static 'images/logo2.png' %}" height="20px" width="20px">
+                            <img ng-src="{showdata.user.profile}" height="20px" width="20px" class="rounded-3">
                         </div>
-                        <div class="col-11 font_class"><span>abc_@45</span></div>
+                        <div class="col-11 font_class"><span ng-bind="showdata.user.username"></span></div>
                     </div>
                 </div>
-
+                
                 <!--
-                    card-body which cpontain post image
+                    card-body which contain post image
                 -->
-                <div class="card-body mb-3 mt-3">
-                    <div class="post_img_center">
-                        <img src="{% static 'images/nature.jpeg'%} " height="200px" width="250px">
+                <div class="card-body mb-1 mt-1">
+                    <div class="post_img_center" ng-repeat="img in showdata.post_image">   
+                        <img ng-src="{img.images}" height="200px" width="300px">
                     </div>
                 </div>
                 <!--
@@ -61,37 +63,128 @@
                 -->
                 <div class="card-footer">
                     <div class="row">
-                        <div class="col-1  mt-1">
-                            <img src="{% static 'images/heart.svg' %}" height="20px" width="20px">
+                        <div class="col-1 mt-1 pt-1 me-2 likes">
+                            <span class="heart" onclick="addlike()">
+                                <span>
+                                    <svg aria-label="Like" 
+                                     color="#FF0000" 
+                                     fill="#262626" 
+                                     height="24" 
+                                     role="img"
+                                     viewBox="0 0 48 48" 
+                                     width="24">
+                                        <!-- Coordinate path  -->
+
+                                        <path
+                                            d="M34.6 6.1c5.7 0 10.4 5.2 10.4 
+                                            11.5 0 6.8-5.9 11-11.5 16S25 41.3 24 
+                                            41.9c-1.1-.7-4.7-4-9.5-8.3-5.7-5-11.5-9.2-11.5-16C3 
+                                            11.3 7.7 6.1 13.4 6.1c4.2 0 6.5 2 8.1 4.3 
+                                            1.9 2.6 2.2 3.9 2.5 3.9.3 0 .6-1.3 2.5-3.9 
+                                            1.6-2.3 3.9-4.3 8.1-4.3m0-3c-4.5 0-7.9 
+                                            1.8-10.6 5.6-2.7-3.7-6.1-5.5-10.6-5.5C6 3.1 
+                                            0 9.6 0 17.6c0 7.3 5.4 12 10.6 16.5.6.5 1.3 
+                                            1.1 1.9 1.7l2.3 2c4.4 3.9 6.6 5.9 7.6 6.5.5.3 
+                                            1.1.5 1.6.5.6 0 1.1-.2 1.6-.5 1-.6 2.8-2.2 
+                                            7.8-6.8l2-1.8c.7-.6 1.3-1.2 2-1.7C42.7 29.6 
+                                            48 25 48 17.6c0-8-6-14.5-13.4-14.5z">
+                                        </path>
+                                    </svg>
+                                </span>
+                            </span>
+                        </div>
+                        
+                        <div class=" mt-2 col">
+                            <h5 class="font_class fw-bold fst-italic" ng-bind="showdata.user.username"></h5>
+                           <span> <h6 class="font_class mt-1 fst-italic pe-3 " ng-bind="showdata.content"></h6> </span>
                         </div>
                         <!--
-                            2nd column for comment on comment button click collaps work
+                            2nd column for comment on comment button click
                         -->
-                        <div class="col-11">
-                            <a type="button" class="btn btn-light font_class" data-bs-toggle="collapse" data-bs-target="#comment-toggle">Comment</a>
-                            <div id="comment-toggle" class="collapse">
-                                <!--
+                        <div>
+                            <div class="ms-4">
+                                <!--    
                                     to submit a comment form starting from here
                                 -->
-                               <form>
+                               <form method="post" ng-submit="SaveComment()">
+                                {% csrf_token %}
+                                <h2 ng-bind="showdata.id" ng-model="post" class="postid" style="display:none;"></h2>
                                 <div class="mb-3 mt-3">
-                                    <input type="text" class="form-control" id="title" placeholder="Add Comment" name="pswd">
+                                 <input type="text" ng-model="description" class="form-control description" placeholder="Add Comment">
                                 </div>
-                                <a type="button" class="btn btn-primary">Add Comment</a>
+                                <input type="submit" class="btn btn-primary" value="add comment">
                                </form>
                             </div>
                         </div>
                         <!--
-                            to see caption of the post
+                            see comment
                         -->
-                        <div class="ms-4 mt-2">
-                            <h7 class="font_class fw-bold fst-italic">Userid</h7>
-                            <h6 class="font_class pe-3">Lorem, ipsum dolor sit amet consectetur adipisicing elit. Doloribus sed iure sequi vitae fuga perferendis quisquam, doloremque totam quod aspernatur.</h6>
+                       
+                        <div>
+                        <div class="ms-4 mt-2 row" ng-repeat="comment in showdata.comments">
+                            <div class="row">
+                                <div class="col-1">
+                                    <img ng-src="{comment.commented_by.profile}" height="20px" width="20px" class="rounded-3">
+                                </div>
+                                <h6 class="fw-bold fst-italic col vertical_align" ng-bind="comment.commented_by.username"></h6>
+                            </div>
+                                <h7 class="font_class col-5" ng-bind="comment.description"></h7>
+                                 <h7 class="font_class col-5" ng-bind="comment.created_at|date:'MM/dd/yyyy HH:mm'"></h7>
+                            
+                        </div>
+                        </div>
+                            <a href="#" class="text-success mt-2 ms-3 mb-1" data-bs-toggle="modal" data-bs-target="#commentmodal" ng-click="GetAllComment(showdata.id)">Load Comments...</a>
                         </div>
                     </div>
                 </div>
+
+
+
+
+                <!--comment modal-->
+
+                <div class="modal fade" id="commentmodal">
+                    <div class="modal-dialog">
+                    <div class="modal-content">
+  
+                        <!-- Modal Header -->
+                        <div class="modal-header">
+                            <h4 class="modal-title">Comments..</h4>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+
+                        <!-- Modal body -->
+                        <div class="modal-body">
+                            <div class="ms-2">
+                                <div ng-repeat="comment in CommentData">
+                                    <div class="row">
+                                        <div class="col-1">
+                                            <img ng-src="{comment.commented_by.profile}" height="20px" width="20px" class="rounded-3">
+                                        </div>
+                                        <h6 class="fw-bold fst-italic col" ng-bind="comment.commented_by.username"></h6>
+                                    </div>
+                                    <h7 class="font_class col-7 " ng-bind="comment.description"></h7>
+                                    <h7 class="font_class col-3 ms-3" ng-bind="comment.created_at|date:'MM/dd/yyyy HH:mm'"></h7>
+                                </div>
+                            </div>
+                        </div>
+                    <!-- Modal footer -->
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                        </div>
+  
+                    </div>
+                    </div>
+                </div>
+
+
             </div>
         </div>
+        </div>
+
+
+
+
 
 
 
@@ -117,7 +210,7 @@
                 <form method="post" enctype="multipart/form-data" id="post_form">
                     {% csrf_token %}
                     <div>
-                        <center><img src="{% static 'images/nature.jpeg' %}" alt="Cinque Terre" height="200px" width="300px" id="post_target"></center>
+                        <center><img src="{% static 'images/plus-square-fill.svg'%}" alt="No photo selected yet.." height="200px" width="300px" id="post_target"></center>
                     </div>
                     <div class="mb-3">
                         <label for="post_img" class="mt-2" style="margin-left: 190px;"><span class="btn">Add Post</span></label>
@@ -129,19 +222,15 @@
                     </div>
                
 
-
-
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <input type="submit" class="btn btn-primary" value="submit">
+          <input type="submit" class="btn btn-primary" value="submit" id="post_close_modal">
         </div>
          </form>
       </div>
     </div>
 </div>
-
-
 
 
   <!--
@@ -162,37 +251,33 @@
             -->
                 <form  method="patch" enctype="multipart/form-data" id="edit_profile_form">
                     {% csrf_token %}
+                   
                     <div>
-                        <center><img src="{% static 'images/nature.jpeg' %} " alt="Cinque Terre" height="150px" width="150px" id="target"></center>
+                        <center><img src="{% if request.user.profile %}{{request.user.profile.url}}{% else %}{% endif %}" alt="No photo Choose for edit" height="150px" width="150px" id="target"></center>
                     </div>
                     <div class="mb-3">
                         <label for="img" class="mt-2" style="margin-left: 170px;"><span class="btn">Edit Profile</span></label>
                         <input type="file" id="img" name="profile" accept="image/*" style="display:none">
                     </div>
                     <div class="mb-3 mt-3">
-                        <input type="text" class="form-control" id="" name="first_name" placeholder="Edit Fisrt Name">
+                        <input type="text" class="form-control" name="first_name" placeholder="Edit Fisrt Name" value="{{request.user.first_name}}">
                     </div>
                     <div class="mb-3">
-                        <input type="text" class="form-control" id="" name="last_name" placeholder="edit Last Name">
+                        <input type="text" class="form-control" name="last_name" placeholder="edit Last Name" value="{{request.user.last_name}}">
                     </div>
                     <div class="mb-3">
-                        <input type="text" class="form-control" name="username" id="" placeholder="Edit Username" >
+                        <input type="text" class="form-control" name="username" placeholder="Edit Username"value="{{request.user.username}}" >
                     </div>
-                    <div class="mb-3">
-                        <input type="password" class="form-control" name="password" id="" placeholder="Reset password" >
-                    </div>
-
-
-
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <input type="submit" class="btn btn-primary" value="submit">
+          <input type="submit" class="btn btn-primary" value="submit" id="close_edit_profile_modal">
         </div>
     </form>
     </div>
 </div>
 </div>
+
 
 
 
@@ -221,7 +306,7 @@
                 <div class="col-1"></div>
             </div>
         </div>
-    </div>
+</div>
 </body>
 
 
@@ -237,6 +322,19 @@ let myModal = new bootstrap.Modal(document.getElementById('postmodal'))
 document.getElementById('post_modal_btnid').addEventListener('click', function() {
   myModal.show()    
 })
+// on modal if after click on release modal should hide 
+$('#post_close_modal').on("click",function()
+{
+$('#postmodal').modal('hide');
+
+
+});
+$('#close_edit_profile_modal').on("click",function()
+{
+$('#edit_profile_modal').modal('hide');
+
+
+});
 
 
 // Edit Profile modals js
@@ -282,34 +380,7 @@ var target_post = document.getElementById("post_target");
 showImage(post_src,target_post);
 
 
-// add post
-
-$(document).on("submit", "#post_form", function (event) {
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    var formData = new FormData(this);
-
-    $.ajax({
-        method: 'POST',
-        headers: {'X-CSRFToken': '{{ csrf_token }}'},
-        url: "/homepage/",
-        data: formData,
-        contentType: false,
-        success: function (data){
-            if(data){
-               alert("post created.")
-                }  
-        },
-        error: function() {
-            alert('enter a valid data')
-        }, 
-        cache: false,
-        contentType: false,
-        processData: false
-    });
-    return false;
-})
-
+const likeButtons = document.querySelectorAll('.like-button');
 
 
 // edit profile AJAX
@@ -320,7 +391,7 @@ $(document).on("submit", "#edit_profile_form", function (event) {
     $.ajax({
         method: 'PATCH',
         headers: {'X-CSRFToken': '{{ csrf_token }}'},
-        url: "/homepage/",
+        url: "/postpage/",
         data: formData,
         contentType: false,
         success: function (data){
@@ -337,5 +408,99 @@ $(document).on("submit", "#edit_profile_form", function (event) {
     });
     return false;
 })
+
+
+
+
+//addcomment
+//without refresh post data is showing
+// add post
+var app = angular.module('ShowPostApp', []);
+app.config(function($interpolateProvider) {
+    $interpolateProvider.startSymbol('{');
+    $interpolateProvider.endSymbol('}');
+  });
+
+app.controller('postCtrl', function($scope, $http) 
+{
+    $scope.myPostData = []
+    $scope.funcd = function(){
+        $http.get('/postpage/').then(function (response) 
+        {
+           $scope.myPostData = response.data.PostData;  
+       });
+    }
+    $scope.funcd()
+
+    $(document).on("submit", "#post_form", function (event) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        var formData = new FormData(this);
+    
+        $.ajax({
+            method: 'POST',
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+            url: "/postpage/",
+            data: formData,
+            contentType: false,
+            success: function (data){
+                if(data){
+                    $scope.funcd()
+                    }  
+            },
+            error: function() {
+                alert('enter a valid data')
+            }, 
+            cache: false,
+            contentType: false,
+            processData: false
+        });
+        return false;
+    })
+    
+
+    $scope.GetAllComment = function(postid)
+    {
+        $scope.CommentData = []
+        $http.get('post/' + postid +'/comments/').then(function (response)  
+        {
+          $scope.CommentData = response.data.GetComments; 
+         
+     });
+   }
+
+    
+    //savecomment and show comment
+    $scope.SaveComment = function()
+    {  
+        var formData = new FormData();
+        formData.append('description', $('.description').val())
+        formData.append('post', $('.postid').html())
+        $.ajax({
+            method: 'POST',
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+            url: "/savecomment/",
+            data: formData,
+            //data: {description: $scope.description,
+                //post: $scope.post},
+            contentType: false,
+            success: function (data){
+                if(data){
+                    $scope.funcd()
+                  
+                 }  
+            },  
+            error: function() {
+                alert('enter a valid data')
+            }, 
+            cache: false,
+            contentType: false,
+            processData: false
+         });
+        return false;
+    }
+   
+
+});
 </script>
 </html>

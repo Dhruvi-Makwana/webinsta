@@ -13,7 +13,7 @@ class TimeStamp(models.Model):
 
 
 class User(AbstractUser):
-    birth_date = models.DateField(null=True,blank=True)
+    birth_date = models.DateField(null=True, blank=True)
     profile = models.ImageField(
         upload_to="user_profile/",
         height_field=None,
@@ -22,11 +22,12 @@ class User(AbstractUser):
         blank=True,
         null=True
     )
-
+    def __str__(self):
+        return f'{self.username}'
 
 class Post(TimeStamp):
-    created_by = models.ForeignKey(User, related_name="post", on_delete=models.CASCADE)
-    content = models.TextField(max_length=1000)
+    created_by = models.ForeignKey(User, related_name="get_user", on_delete=models.CASCADE)
+    content = models.TextField(max_length=1000, blank=True, null=True)
 
     class Meta:
         verbose_name = "post"
@@ -37,6 +38,9 @@ class Comment(TimeStamp):
     post = models.ForeignKey(Post, related_name="comments", on_delete=models.CASCADE)
     commented_by = models.ForeignKey(User, related_name="comments", on_delete=models.CASCADE)
 
+    class Meta:
+        verbose_name_plural = "comments"
+
 
 class PostImage(models.Model):
     images = models.ImageField(
@@ -46,4 +50,4 @@ class PostImage(models.Model):
         max_length=100,
         blank=True,
     )
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="images")
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="post_image")
