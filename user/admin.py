@@ -10,7 +10,7 @@ class UserAdmin(admin.ModelAdmin):
 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
-    list_display = ('id', 'created_by', 'content', 'created_at', 'updated_at')
+    list_display = ('id', 'created_by', 'content', 'get_likes', 'created_at', 'updated_at')
 
 
 @admin.register(PostImage)

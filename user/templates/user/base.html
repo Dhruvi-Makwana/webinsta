@@ -13,6 +13,8 @@
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
     <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
     <script src="https://use.fontawesome.com/0206006232.js"></script>
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+    <script src="https://use.fontawesome.com/0206006232.js"></script>
     
     <link rel="stylesheet" href="{% static 'css/base.css' %}"  type="text/css">
     <script src="{% static 'js/base.js' %}"></script>
@@ -55,7 +57,7 @@
                 -->
                 <div class="card-body mb-1 mt-1">
                     <div class="post_img_center" ng-repeat="img in showdata.post_image">   
-                        <img ng-src="{img.images}" height="200px" width="300px">
+                        <img ng-src="{img.images}" height="200px" width="340px" class="rounded-1">
                     </div>
                 </div>
                 <!--
@@ -63,54 +65,64 @@
                 -->
                 <div class="card-footer">
                     <div class="row">
-                        <div class="col-1 mt-1 pt-1 me-2 likes">
-                            <span class="heart" onclick="addlike()">
-                                <span>
-                                    <svg aria-label="Like" 
-                                     color="#FF0000" 
-                                     fill="#262626" 
-                                     height="24" 
-                                     role="img"
-                                     viewBox="0 0 48 48" 
-                                     width="24">
-                                        <!-- Coordinate path  -->
-
-                                        <path
-                                            d="M34.6 6.1c5.7 0 10.4 5.2 10.4 
-                                            11.5 0 6.8-5.9 11-11.5 16S25 41.3 24 
-                                            41.9c-1.1-.7-4.7-4-9.5-8.3-5.7-5-11.5-9.2-11.5-16C3 
-                                            11.3 7.7 6.1 13.4 6.1c4.2 0 6.5 2 8.1 4.3 
-                                            1.9 2.6 2.2 3.9 2.5 3.9.3 0 .6-1.3 2.5-3.9 
-                                            1.6-2.3 3.9-4.3 8.1-4.3m0-3c-4.5 0-7.9 
-                                            1.8-10.6 5.6-2.7-3.7-6.1-5.5-10.6-5.5C6 3.1 
-                                            0 9.6 0 17.6c0 7.3 5.4 12 10.6 16.5.6.5 1.3 
-                                            1.1 1.9 1.7l2.3 2c4.4 3.9 6.6 5.9 7.6 6.5.5.3 
-                                            1.1.5 1.6.5.6 0 1.1-.2 1.6-.5 1-.6 2.8-2.2 
-                                            7.8-6.8l2-1.8c.7-.6 1.3-1.2 2-1.7C42.7 29.6 
-                                            48 25 48 17.6c0-8-6-14.5-13.4-14.5z">
-                                        </path>
-                                    </svg>
-                                </span>
-                            </span>
+                        <div class="col-2 mt-1 pt-1">
+                            <span id="heart_{showdata.id}"><i class="fa fa-heart-o" aria-hidden="true" ng-click="likefunc(showdata.id)"></i> </span>
+                            <h7 class="ms-1" ng-bind="showdata.likes"></h7>
+                            <a href="#" class="text-success mb-1" data-bs-toggle="modal" data-bs-target="#likedmodal" ng-click="GetAllLikes(showdata.id)">like</a>
                         </div>
+
+
+
+                           <!--like modal-->
+
+                    <div class="modal fade" id="likedmodal">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+  
+                                <!-- Modal Header -->
+                                <div class="modal-header">
+                                    <h4 class="modal-title">liked by..</h4>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+
+                                    <!-- Modal body -->
+                                <div class="modal-body">
+                                    <div class="ms-2">
+                                        <div ng-repeat="name in LikesData">
+                                            <div class="row">
+                                                <h6 class="col mt-1 ms-0 ps-0 font_class" ng-bind="name.liked_user"></h6>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Modal footer -->
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
                         
-                        <div class=" mt-2 col">
+                        <div class="mt-2 col">
                             <h5 class="font_class fw-bold fst-italic" ng-bind="showdata.user.username"></h5>
-                           <span> <h6 class="font_class mt-1 fst-italic pe-3 " ng-bind="showdata.content"></h6> </span>
+                           <span> <h6 class="font_class mt-1 fst-italic pe-3" ng-bind="showdata.content"></h6> </span>
                         </div>
                         <!--
                             2nd column for comment on comment button click
                         -->
                         <div>
-                            <div class="ms-4">
+                            <div class="ms-4 me-4">
                                 <!--    
                                     to submit a comment form starting from here
                                 -->
-                               <form method="post" ng-submit="SaveComment()">
+                               <form method="post" ng-submit="SaveComment(showdata.id)">
                                 {% csrf_token %}
-                                <h2 ng-bind="showdata.id" ng-model="post" class="postid" style="display:none;"></h2>
                                 <div class="mb-3 mt-3">
-                                 <input type="text" ng-model="description" class="form-control description" placeholder="Add Comment">
+                                 <input type="text" id="description_{showdata.id}"  class="form-control description" placeholder="Add Comment">
                                 </div>
                                 <input type="submit" class="btn btn-primary" value="add comment">
                                </form>
@@ -121,17 +133,16 @@
                         -->
                        
                         <div>
-                        <div class="ms-4 mt-2 row" ng-repeat="comment in showdata.comments">
-                            <div class="row">
-                                <div class="col-1">
-                                    <img ng-src="{comment.commented_by.profile}" height="20px" width="20px" class="rounded-3">
+                            <div class="ms-4 mt-2 row" ng-repeat="comment in showdata.comments">
+                                <div class="row">
+                                    <div class="col-1">
+                                        <img ng-src="{comment.commented_by.profile}" height="20px" width="20px" class="rounded-3">
+                                    </div>
+                                    <h6 class="fw-bold fst-italic col mt-1" ng-bind="comment.commented_by.username"></h6>
                                 </div>
-                                <h6 class="fw-bold fst-italic col vertical_align" ng-bind="comment.commented_by.username"></h6>
+                                    <h7 class="font_class col-5" ng-bind="comment.description"></h7>
+                                    <h7 class="font_class col-5" ng-bind="comment.created_at|date:'dd/MM/yyyy HH:mm'"></h7> 
                             </div>
-                                <h7 class="font_class col-5" ng-bind="comment.description"></h7>
-                                 <h7 class="font_class col-5" ng-bind="comment.created_at|date:'MM/dd/yyyy HH:mm'"></h7>
-                            
-                        </div>
                         </div>
                             <a href="#" class="text-success mt-2 ms-3 mb-1" data-bs-toggle="modal" data-bs-target="#commentmodal" ng-click="GetAllComment(showdata.id)">Load Comments...</a>
                         </div>
@@ -161,7 +172,7 @@
                                         <div class="col-1">
                                             <img ng-src="{comment.commented_by.profile}" height="20px" width="20px" class="rounded-3">
                                         </div>
-                                        <h6 class="fw-bold fst-italic col" ng-bind="comment.commented_by.username"></h6>
+                                        <h6 class="fw-bold fst-italic col mt-1 ms-0 ps-0" ng-bind="comment.commented_by.username"></h6>
                                     </div>
                                     <h7 class="font_class col-7 " ng-bind="comment.description"></h7>
                                     <h7 class="font_class col-3 ms-3" ng-bind="comment.created_at|date:'MM/dd/yyyy HH:mm'"></h7>
@@ -316,7 +327,10 @@
 
 
 <script>
-    //post modal js
+
+
+    
+     //post modal js
 let myModal = new bootstrap.Modal(document.getElementById('postmodal'))
 
 document.getElementById('post_modal_btnid').addEventListener('click', function() {
@@ -421,6 +435,10 @@ app.config(function($interpolateProvider) {
     $interpolateProvider.endSymbol('}');
   });
 
+
+
+
+
 app.controller('postCtrl', function($scope, $http) 
 {
     $scope.myPostData = []
@@ -431,6 +449,55 @@ app.controller('postCtrl', function($scope, $http)
        });
     }
     $scope.funcd()
+
+
+
+
+    $scope.GetAllLikes = function(postid)
+    {
+        $scope.LikesData = []
+        $http.get('like/' + postid +'/').then(function (response)  
+        {
+          $scope.LikesData = response.data.GetLikes; 
+          
+     });
+   }
+
+    $scope.likefunc = function(postId){
+
+        var formData = new FormData();
+        $.ajax({
+          method: 'PATCH',
+          headers: {'X-CSRFToken': '{{ csrf_token }}'},
+          url:'like/' + postId+ '/',
+          data: formData,
+          contentType: false,
+          success: function (data){
+              if(data){
+                $scope.funcd()
+
+                    if(data['action'] == "like")
+                    {
+
+                        $("#heart_"+postId).html('<i class="fa fa-heart" aria-hidden="true"></i>');
+                    }
+                    else
+                    {
+                        $("#heart_"+postId).html('<i class="fa fa-heart-o" aria-hidden="true"></i>');
+                    }
+                
+               }  
+          },  
+          error: function() {
+              alert('enter a valid data')
+          }, 
+          cache: false,
+          contentType: false,
+          processData: false
+       });
+      return false;
+      
+      };
 
     $(document).on("submit", "#post_form", function (event) {
         event.preventDefault();
@@ -465,24 +532,22 @@ app.controller('postCtrl', function($scope, $http)
         $http.get('post/' + postid +'/comments/').then(function (response)  
         {
           $scope.CommentData = response.data.GetComments; 
-         
+          
      });
    }
 
     
     //savecomment and show comment
-    $scope.SaveComment = function()
+    $scope.SaveComment = function(postId)
     {  
         var formData = new FormData();
-        formData.append('description', $('.description').val())
-        formData.append('post', $('.postid').html())
+        formData.append('description', $('#description_'+postId).val())
+        formData.append('post', postId)
         $.ajax({
             method: 'POST',
             headers: {'X-CSRFToken': '{{ csrf_token }}'},
             url: "/savecomment/",
             data: formData,
-            //data: {description: $scope.description,
-                //post: $scope.post},
             contentType: false,
             success: function (data){
                 if(data){
@@ -504,3 +569,67 @@ app.controller('postCtrl', function($scope, $http)
 });
 </script>
 </html>
+
+
+
+
+
+
+
+ {% comment %} if($("#heart_"+postId).hasClass("liked"))
+{
+    
+  $("#heart_"+postId).html('<i class="fa fa-heart-o" aria-hidden="true"></i>');
+  $("#heart_"+postId).removeClass("liked");
+ 
+  var formData = new FormData();
+        $.ajax({
+          method: 'PATCH',
+          headers: {'X-CSRFToken': '{{ csrf_token }}'},
+          url:'like/' + postId+ '/',
+          data: formData,
+          contentType: false,
+          success: function (data){
+              if(data){
+                  $scope.funcd()
+                
+               }  
+          },  
+          error: function() {
+              alert('enter a valid data')
+          }, 
+          cache: false,
+          contentType: false,
+          processData: false
+       });
+      return false;
+        
+
+  
+}
+else{
+        $("#heart_"+postId).html('<i class="fa fa-heart" aria-hidden="true"></i>');
+         $("#heart_"+postId).addClass("liked");
+        var formData = new FormData();
+        $.ajax({
+          method: 'PATCH',
+          headers: {'X-CSRFToken': '{{ csrf_token }}'},
+          url:'like/' + postId+ '/',
+          data: formData,
+          contentType: false,
+          success: function (data){
+              if(data){
+                  $scope.funcd()
+                
+               }  
+          },  
+          error: function() {
+              alert('enter a valid data')
+          }, 
+          cache: false,
+          contentType: false,
+          processData: false
+       });
+      return false;
+        
+}*/ {% endcomment %}

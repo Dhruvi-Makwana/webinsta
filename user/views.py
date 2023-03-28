@@ -6,16 +6,17 @@ from rest_framework import status
 from .models import User,PostImage, Post, Comment
 from rest_framework.response import Response
 from .serializer import UserSerializer, LoginSerializer, \
-    PostSerializer, PostImageSerializer, Commentserializer, SaveCommentserializer
+    PostSerializer, PostImageSerializer, Commentserializer, SaveCommentserializer, LikeSerializer
 from rest_framework.views import APIView
 from rest_framework.renderers import TemplateHTMLRenderer
 from django.shortcuts import redirect, reverse
 from rest_framework.parsers import JSONParser, MultiPartParser
 from django.contrib.auth import authenticate
-from django.contrib.auth import login,logout
+from django.contrib.auth import login, logout
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.http import JsonResponse
 from django.db.models import Prefetch
+from django.db.models import Count
 
 
 class RegisterView(APIView):
@@ -73,7 +74,7 @@ class PostPage(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        posts = Post.objects.all()
+        posts = Post.objects.all().order_by('-id')
         return JsonResponse({'PostData': list(PostSerializer(posts, many=True).data)})
 
     def post(self, request, *args, **kwargs):
@@ -85,7 +86,6 @@ class PostPage(APIView):
         post_serializer.is_valid()
         get_post = post_serializer.save()
         PostImage.objects.create(images=request.data['images'], post=get_post)
-
         return Response({'post_id': post_serializer.data}, status=status.HTTP_201_CREATED)
 
     def patch(self, request, *args, **kwargs):
@@ -94,7 +94,6 @@ class PostPage(APIView):
         serializer = UserSerializer(instance=user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-
         return Response({'update_user_success': serializer.data}, status=status.HTTP_202_ACCEPTED)
 
 
@@ -108,7 +107,6 @@ class SaveComments(APIView):
         return Response(status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
-
         data = request.data.copy()
         user = request.user
         data['commented_by'] = user.id
@@ -116,6 +114,23 @@ class SaveComments(APIView):
         comment.is_valid()
         comment.save()
         return Response({'comment_id': comment.data}, status=status.HTTP_201_CREATED)
+
+
+class LikeFeature(APIView):
+    def get(self, request, *args, **kwargs):
+        posts = Post.objects.filter(pk=kwargs.get('pk'))
+        return JsonResponse({'GetLikes': list(PostSerializer(posts, many=True).data)})
+
+    def patch(self, request, *args, **kwargs):
+        post_obj = Post.objects.get(pk=kwargs.get('pk'))
+        user = request.user
+        if user in post_obj.likes.all():
+            post_obj.likes.remove(user)
+            return Response({'message': 'remove like', 'action': 'dislike'})
+        else:
+            post_obj.likes.add(user)
+            return Response({'message': 'added like', 'action': 'like'})
+
 
 
 class LogoutView(APIView):

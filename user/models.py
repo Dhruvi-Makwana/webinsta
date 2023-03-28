@@ -22,12 +22,18 @@ class User(AbstractUser):
         blank=True,
         null=True
     )
+
     def __str__(self):
         return f'{self.username}'
+
 
 class Post(TimeStamp):
     created_by = models.ForeignKey(User, related_name="get_user", on_delete=models.CASCADE)
     content = models.TextField(max_length=1000, blank=True, null=True)
+    likes = models.ManyToManyField(User, related_name="liked_by", blank=True)
+
+    def get_likes(self):
+        return "\n".join([p.username for p in self.likes.all()])
 
     class Meta:
         verbose_name = "post"
