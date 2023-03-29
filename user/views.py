@@ -15,6 +15,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth import login, logout
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.http import JsonResponse
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Prefetch
 from django.db.models import Count
 
@@ -126,10 +127,10 @@ class LikeFeature(APIView):
         user = request.user
         if user in post_obj.likes.all():
             post_obj.likes.remove(user)
-            return Response({'message': 'remove like', 'action': 'dislike'})
+            return Response({'action': 'dislike'})
         else:
             post_obj.likes.add(user)
-            return Response({'message': 'added like', 'action': 'like'})
+            return Response({'action': 'like'})
 
 
 

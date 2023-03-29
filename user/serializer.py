@@ -56,8 +56,9 @@ class PostSerializer(serializers.ModelSerializer):
     def get_likes(self, obj):
         return obj.likes.count()
 
-    def get_liked_user(self,obj):
-        return list(obj.likes.values_list('username',flat=True))
+    def get_liked_user(self, obj):
+        return list(obj.likes.values('username', 'profile'))
+
 
 class SaveCommentserializer(serializers.ModelSerializer):
     class Meta:
