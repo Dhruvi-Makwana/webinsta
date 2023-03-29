@@ -1,7 +1,4 @@
 from django.shortcuts import render
-from rest_framework import viewsets
-from rest_framework.response import Response
-from rest_framework.serializers import ValidationError
 from rest_framework import status
 from .models import User,PostImage, Post, Comment
 from rest_framework.response import Response
@@ -13,11 +10,8 @@ from django.shortcuts import redirect, reverse
 from rest_framework.parsers import JSONParser, MultiPartParser
 from django.contrib.auth import authenticate
 from django.contrib.auth import login, logout
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.http import JsonResponse
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Prefetch
-from django.db.models import Count
 
 
 class RegisterView(APIView):
@@ -44,6 +38,7 @@ class LoginView(APIView):
     renderer_classes = [TemplateHTMLRenderer]
     template_name = 'user/login.html'
     parser_classes = (JSONParser, MultiPartParser)
+    permission_classes = (AllowAny,)
 
     def get(self, request):
         return Response(status=status.HTTP_200_OK)
@@ -61,6 +56,7 @@ class LoginView(APIView):
 
 
 class HomePage(APIView):
+    permission_classes = (IsAuthenticated,)
     template_name = 'user/base.html'
 
     def get(self, request):
@@ -72,7 +68,7 @@ class PostPage(APIView):
     template_name = 'user/base.html'
     renderer_classes = [TemplateHTMLRenderer]
     parser_classes = (JSONParser, MultiPartParser)
-    permission_classes = [IsAuthenticated]
+    permission_classes = (IsAuthenticated,)
 
     def get(self, request):
         posts = Post.objects.all().order_by('-id')
@@ -99,11 +95,15 @@ class PostPage(APIView):
 
 
 class AllComments(APIView):
+    permission_classes = (IsAuthenticated,)
+
     def get(self, request, *args, **kwargs):
         return JsonResponse({'GetComments': list(Commentserializer(Comment.objects.filter(post=kwargs.get('pk')).order_by('-id'), many=True).data)})
 
 
 class SaveComments(APIView):
+    permission_classes = (IsAuthenticated,)
+
     def get(self, request, *args, **kwargs):
         return Response(status=status.HTTP_200_OK)
 
@@ -118,6 +118,7 @@ class SaveComments(APIView):
 
 
 class LikeFeature(APIView):
+    permission_classes = (IsAuthenticated,)
     def get(self, request, *args, **kwargs):
         posts = Post.objects.filter(pk=kwargs.get('pk'))
         return JsonResponse({'GetLikes': list(PostSerializer(posts, many=True).data)})
@@ -133,29 +134,9 @@ class LikeFeature(APIView):
             return Response({'action': 'like'})
 
 
-
 class LogoutView(APIView):
-    def post(self, request):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
         logout(request)
         return Response(status=status.HTTP_200_OK)
-
-    # get_post_data = Post.objects.prefetch_related('post_image').values('id', 'content', 'created_by__username',
-        #                                           'created_by__profile', 'post_image__images')\
-        #                 | Post.objects.prefetch_related('comments').values('description', 'commented_by__username')
-
-
-
-
-#  def get_comments(self, obj):
-#         return Commentserializer(Comment.objects.filter(post=obj).order_by('-id')[0:2]).data
-   # comments = Post.objects.prefetch_related(Prefetch('post_image'),
-        #     Prefetch('comments')).values('comments__description',
-        #                                  'comments__commented_by__username','comments__created_at').order_by('-id')
-        #
-        # get_post_data = Post.objects.prefetch_related('post_image').values('id', 'content', 'created_by__username', 'created_by__profile', 'post_image__images')
-        # get_post_data = Post.objects.prefetch_related(Prefetch('post_image'),
-        #     Prefetch('comments')).values('id', 'content', 'created_by__username',
-        #                                  'created_by__profile', 'post_image__images', 'comments__description',
-        #                                  'comments__commented_by__username', 'comments__created_at').order_by('-id')
-        #
-        # return JsonResponse({'PostData': list(get_post_data)})

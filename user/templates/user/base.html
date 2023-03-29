@@ -29,7 +29,7 @@
             </div>
                 
             <div class="col">
-                <a type="button" href="{% url 'login' %}" class="float-end btn border text-black" id="logout-button">Logout</a>
+                <a type="button" href="{% url 'logout' %}" class="float-end btn border text-black" id="logout-button">Logout</a>
             </div>
         </div>
 
@@ -46,7 +46,7 @@
                 <div class="card-header">   
                     <div class="row">
                         <div class="col-1">
-                            <img ng-src="{showdata.user.profile}" height="20px" width="20px" class="rounded-3">
+                            <img ng-src="{showdata.user.profile}" height="25px" width="25px" class="rounded-3">
                         </div>
                         <div class="col-11 font_class"><span ng-bind="showdata.user.username"></span></div>
                     </div>
@@ -65,12 +65,14 @@
                 -->
                 <div class="card-footer">
                     <div class="row">
-                        <div class="col-2 mt-1 pt-1">
-                            <span id="heart_{showdata.id}"><i class="fa fa-heart-o" aria-hidden="true" ng-click="likefunc(showdata.id)"></i> </span>
-                            <h7 class="ms-1" ng-bind="showdata.likes"></h7>
-                            <a href="#" class="text-success mb-1" data-bs-toggle="modal" data-bs-target="#likedmodal" ng-click="GetAllLikes(showdata.id)">like</a>
+                        <div class="mt-1 pt-1">
+                            <span id="heart_{showdata.id}"><i class="fa fa-heart" aria-hidden="true" ng-click="likefuncScop(showdata.id)"></i> </span>
+                    
+                            <h7 class="ms-1 fw-bold" ng-bind="showdata.likes"></h7>
+                            <h7 class="like_font ps-2">liked by</h7>
+                            <h7 class="mb-1 like_font" id="yourlike_{showdata.id}">you and</h7>
+                            <a href="#" class="text-success mb-1 like_font" data-bs-toggle="modal" data-bs-target="#likedmodal" ng-click="GetAllLikes(showdata.id)">others</a>
                         </div>
-
 
 
                            <!--like modal-->
@@ -91,9 +93,9 @@
                                         <div ng-repeat="getLikesData in data.liked_user">
                                             <div class="row">
                                                 <div class="col-1">
-                                                    <img ng-src="http://127.0.0.1:8000/media/{getLikesData.profile}" height="20px" width="20px" class="rounded-3">
+                                                    <img ng-src="http://127.0.0.1:8000/media/{getLikesData.profile}" height="25px" width="25px" class="rounded-3">
                                                 </div>
-                                                <h6 class="col mt-1 ms-0 ps-0 font_class" ng-bind="getLikesData.username"></h6>
+                                                <h6 class="col mt-1 ms-2 ps-0 font_class" ng-bind="getLikesData.username"></h6>
                                             </div>
                                         </div>
                                     </div>
@@ -110,7 +112,7 @@
 
 
                         
-                        <div class="mt-2 col">
+                        <div class="mt-2 ms-3">
                             <h5 class="font_class fw-bold fst-italic" ng-bind="showdata.user.username"></h5>
                            <span> <h6 class="font_class mt-1 fst-italic pe-3" ng-bind="showdata.content"></h6> </span>
                         </div>
@@ -139,7 +141,7 @@
                             <div class="ms-4 mt-2 row" ng-repeat="comment in showdata.comments">
                                 <div class="row">
                                     <div class="col-1">
-                                        <img ng-src="{comment.commented_by.profile}" height="20px" width="20px" class="rounded-3">
+                                        <img ng-src="{comment.commented_by.profile}" height="25px" width="25px" class="rounded-3">
                                     </div>
                                     <h6 class="fw-bold fst-italic col mt-1" ng-bind="comment.commented_by.username"></h6>
                                 </div>
@@ -173,9 +175,9 @@
                                 <div ng-repeat="comment in CommentData">
                                     <div class="row">
                                         <div class="col-1">
-                                            <img ng-src="{comment.commented_by.profile}" height="20px" width="20px" class="rounded-3">
+                                            <img ng-src="{comment.commented_by.profile}" height="25px" width="25px" class="rounded-3">
                                         </div>
-                                        <h6 class="fw-bold fst-italic col mt-1 ms-0 ps-0" ng-bind="comment.commented_by.username"></h6>
+                                        <h6 class="fw-bold fst-italic col mt-1 ms-2 ps-0" ng-bind="comment.commented_by.username"></h6>
                                     </div>
                                     <h7 class="font_class col-7 " ng-bind="comment.description"></h7>
                                     <h7 class="font_class col-3 ms-3" ng-bind="comment.created_at|date:'MM/dd/yyyy HH:mm'"></h7>
@@ -447,23 +449,18 @@ app.controller('postCtrl', function($scope, $http)
 
     function loadLikesFunc (action, postId){
         console.log(action, postId)
-        alert(action)
-        if(action === "like")
+        if(action == "like")
             {
-                $("#heart_"+postId).html('<i class="fa fa-heart" aria-hidden="true"></i>');
-                
+                $("#heart_"+postId).html('<i class="fa fa-heart" aria-hidden="true" onclick="likefunc('+postId+')"></i>');
+                $("#yourlike_"+postId).html("you and");
             }
-        else if(action === "dislike")
+        else if(action == "dislike")    
             {
-                $("#heart_"+postId).html('<i class="fa fa-heart-o" aria-hidden="true"></i>');
-                
-        
+                $("#heart_"+postId).html('<i class="fa fa-heart-o" aria-hidden="true" onclick="likefunc('+postId+')"></i>');
+                $("#yourlike_"+postId).remove();
             }
-           
         }  
     
-
-
 
     $scope.myPostData = []
     $scope.funcd = function(loadLikes=null, postId=null, action=null){
@@ -471,18 +468,17 @@ app.controller('postCtrl', function($scope, $http)
         $http.get('/postpage/').then(function (response) 
         {
            $scope.myPostData = response.data.PostData;  
+           
         });
 
        if (loadLikes){
         setTimeout(function(){
+            
             loadLikesFunc(action, postId)
-        }, 500);
-        
-
+        }, 200);
        }
     }
     $scope.funcd()
-
 
 
 
@@ -496,7 +492,7 @@ app.controller('postCtrl', function($scope, $http)
      });
    }
 
-    $scope.likefunc = function(postId){
+    likefunc = function(postId){
 
         var formData = new FormData();
         $.ajax({
@@ -508,7 +504,7 @@ app.controller('postCtrl', function($scope, $http)
           success: function (data){
               if(data){
                 $scope.funcd(true, postId, data["action"])
-
+                
             }
           },  
           error: function() {
@@ -521,6 +517,10 @@ app.controller('postCtrl', function($scope, $http)
       return false;
       
       };
+
+      $scope.likefuncScop = function(postId){
+        likefunc(postId)
+      }
 
     $(document).on("submit", "#post_form", function (event) {
         event.preventDefault();

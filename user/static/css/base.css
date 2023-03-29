@@ -141,3 +141,7 @@ border-radius: 4px;
 	color: red;
 	cursor: pointer;
   }
+  .like_font
+  {
+    font-size: 15px;
+  } 
