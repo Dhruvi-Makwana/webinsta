@@ -12,6 +12,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth import login, logout
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.http import JsonResponse
+from user.task import my_first_task
 
 
 class RegisterView(APIView):
@@ -30,6 +31,7 @@ class RegisterView(APIView):
             save_user = user_serializer.save()
             save_user.set_password(save_user.password)
             save_user.save()
+            my_first_task.delay(save_user.email)
             return redirect(reverse('user:login'))
         else:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)

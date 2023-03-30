@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-&6)drrh_zw(6szy18@fo(4q7df53q20vx(3p24(ligu5nmlwb1
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -130,3 +130,17 @@ REST_FRAMEWORK = {
 }
 LOGOUT_REDIRECT_URL = "/"
 
+
+CELERY_BROKER_URL = 'redis://localhost:6379'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+CELERY_RESULT_EXTENDED = True
+CELERY_ACCEPT_CONTENT = ["application/json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+
+EMAIL_BACKEND ='django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'dhruvi.makwana@trootech.com'
+EMAIL_HOST_PASSWORD = 'Mj@ku$31'

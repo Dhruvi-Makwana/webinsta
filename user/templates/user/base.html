@@ -1,5 +1,6 @@
 {% load static %}
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,6 +16,7 @@
     <script src="https://use.fontawesome.com/0206006232.js"></script>
     <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
     <script src="https://use.fontawesome.com/0206006232.js"></script>
+    <script src="{% static 'js/http_request.js' %}"></script>
     
     <link rel="stylesheet" href="{% static 'css/base.css' %}"  type="text/css">
     <script src="{% static 'js/base.js' %}"></script>
@@ -143,10 +145,6 @@
                             <a href="#" class="text-success pt-2 ms-3 mb-1" data-bs-toggle="modal" data-bs-target="#commentmodal" ng-click="GetAllComment(showdata.id)">Show all comments.</a>
                        
                 </div>
-
-
-
-
                 <!--comment modal-->
 
                 <div class="modal fade" id="commentmodal">
@@ -298,7 +296,4 @@
 
 <script>
     csrfFunc("{{csrf_token}}")
-
-
-
 </script>
