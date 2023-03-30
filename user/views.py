@@ -19,6 +19,7 @@ class RegisterView(APIView):
     renderer_classes = [TemplateHTMLRenderer]
     template_name = 'user/register.html'
     parser_classes = (JSONParser, MultiPartParser)
+    permission_classes = (AllowAny,)
 
     def get(self, request, *args, **kwargs):
         return Response(status=status.HTTP_200_OK)
@@ -29,9 +30,9 @@ class RegisterView(APIView):
             save_user = user_serializer.save()
             save_user.set_password(save_user.password)
             save_user.save()
-
-            return Response({'created_user': user_serializer.data}, status=status.HTTP_201_CREATED)
-        return redirect(reverse('user:login'))
+            return redirect(reverse('user:login'))
+        else:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class LoginView(APIView):
@@ -119,6 +120,7 @@ class SaveComments(APIView):
 
 class LikeFeature(APIView):
     permission_classes = (IsAuthenticated,)
+
     def get(self, request, *args, **kwargs):
         posts = Post.objects.filter(pk=kwargs.get('pk'))
         return JsonResponse({'GetLikes': list(PostSerializer(posts, many=True).data)})
@@ -126,6 +128,10 @@ class LikeFeature(APIView):
     def patch(self, request, *args, **kwargs):
         post_obj = Post.objects.get(pk=kwargs.get('pk'))
         user = request.user
+        # if post_obj.likes.all() is None:
+        #     user_count = 'NoUser'
+        # else:
+        #     user_count = "User"
         if user in post_obj.likes.all():
             post_obj.likes.remove(user)
             return Response({'action': 'dislike'})
@@ -139,4 +145,4 @@ class LogoutView(APIView):
 
     def get(self, request):
         logout(request)
-        return Response(status=status.HTTP_200_OK)
+        return redirect(reverse('user:login'))

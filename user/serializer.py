@@ -1,12 +1,25 @@
 
 from rest_framework import serializers
-from .models import User,Post, PostImage,Comment
-from django.contrib.auth import authenticate
+from .models import User, Post, PostImage, Comment
+from datetime import date, timedelta
 
 
 class UserSerializer(serializers.ModelSerializer):
     # user_profile_url = serializers.SerializerMethodField('user_profile_url')
     profile = serializers.ImageField(required=False, max_length=None, allow_empty_file=True, use_url=True)
+    birth_date = serializers.DateField(format='%Y-%m-%d')
+
+    def validate_first_name(self, value):
+        if not value.isalpha():
+            raise serializers.ValidationError("Data must be in alphabets.")
+        return value
+
+    def validate_birth_date(self, value):
+        today = date.today()
+        age = today.year - value.year
+        if age < 18:
+            raise serializers.ValidationError('Too young to register byyyyy...')
+        return value
 
     class Meta:
         model = User

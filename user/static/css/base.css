@@ -59,7 +59,6 @@ border-radius: 4px;
 }
 .post_background
 {
-    background-image: url('post_background1.avif');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -134,14 +133,13 @@ border-radius: 4px;
 .fa-heart-o {
 	color: black;
 	cursor: pointer;
-	
   }
-  
 .fa-heart {
 	color: red;
 	cursor: pointer;
   }
-  .like_font
-  {
-    font-size: 15px;
-  } 
+.like_font
+{
+  font-size: 17px;
+  font-family: fantasy;
+} 
