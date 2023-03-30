@@ -128,10 +128,6 @@ class LikeFeature(APIView):
     def patch(self, request, *args, **kwargs):
         post_obj = Post.objects.get(pk=kwargs.get('pk'))
         user = request.user
-        # if post_obj.likes.all() is None:
-        #     user_count = 'NoUser'
-        # else:
-        #     user_count = "User"
         if user in post_obj.likes.all():
             post_obj.likes.remove(user)
             return Response({'action': 'dislike'})

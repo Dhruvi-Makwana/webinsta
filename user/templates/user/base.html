@@ -18,7 +18,7 @@
     
     <link rel="stylesheet" href="{% static 'css/base.css' %}"  type="text/css">
     <script src="{% static 'js/base.js' %}"></script>
-    <title>Instagram </title>
+    <title>Instagram</title>
 </head>
 
 <body>
@@ -60,7 +60,7 @@
                 <div class="card-footer">
                     <div class="row">
                         <div class="mt-1 pt-1">
-                            <span id="heart_{showdata.id}"><i class="fa fa-heart" aria-hidden="true" ng-click="likefuncScop(showdata.id)"></i> </span>
+                            <span id="heart_{showdata.id}"><i class="fa fa-heart" aria-hidden="true" ng-click="likefuncScop(showdata.id,{{csrf_token}})"></i> </span>
                     
                             <h7 class="ms-1 fw-bold" ng-bind="showdata.likes"></h7>
                             <h7 class="like_font ps-2">liked by</h7>
@@ -105,7 +105,7 @@
                         <!--post coption-->
                         <div class="mt-2 ms-3">
                             {% comment %} <h5 class="font_class fw-bold fst-italic" ng-bind="showdata.user.username"></h5> {% endcomment %}
-                           <span><h6 class="font_class mt-1 fst-italic fw-bold pe-3 ms-2" ng-bind="showdata.content"></h6></span>
+                           <span><h6 class="font_class mt-1 fst-italic fw-bold pe-3 ms-4" ng-bind="showdata.content"></h6></span>
                         </div>
                         <!--
                            to add comment
@@ -128,16 +128,18 @@
                         <!--  see comment -->
                        
                         
-                            <div class="ms-4 mt-2 row" ng-repeat="comment in showdata.comments">
-                                <div class="row">
-                                    <div class="col-1">
-                                        <img ng-src="{comment.commented_by.profile}" height="25px" width="25px" class="rounded-3">
-                                    </div>
-                                    <h6 class="fw-bold fst-italic col mt-1 ms-1" ng-bind="comment.commented_by.username"></h6>
+                        <div class="ms-4 mt-2 row" ng-repeat="comment in showdata.comments">
+                            <div class="row">
+                                <div class="col-1">
+                                    <img ng-src="{comment.commented_by.profile}" height="25px" width="25px" class="rounded-3">
                                 </div>
-                                    <h7 class="font_class col-6" ng-bind="comment.description"></h7>
-                                    <h7 class="font_class col-4" ng-bind="comment.created_at|date:'short'"></h7> 
+                                <h6 class="fw-bold fst-italic col mt-1 ms-1" ng-bind="comment.commented_by.username"></h6>
                             </div>
+                            <div class="row">
+                                <h7 class="font_class col-7 m-0" ng-bind="comment.description"></h7>
+                                <h7 class="font_class col-5 m-0" ng-bind="comment.created_at|date:'short'"></h7> 
+                            </div>
+                        </div>
                             <a href="#" class="text-success pt-2 ms-3 mb-1" data-bs-toggle="modal" data-bs-target="#commentmodal" ng-click="GetAllComment(showdata.id)">Show all comments.</a>
                        
                 </div>
@@ -269,303 +271,34 @@
         </div>
 </div>
 
-<!--  Foote -->
+    <!--  Footer -->
 
-        <div class="footer">
-            <div class="row">
-                <div class="col-1"></div>
-                    <div class="col-10 d-flex justify-content-center">
-                        <!--
-                            main news feed pahe
-                        -->
-                        <a href="#" class="font_class pe-4"><span><img src="{% static 'images/house-door-fill.svg'%}" height="30px" width="30px" class="rounded-4 m-2"></span><span class="vertical_align">News Feed</span></a>
-                        <!--
-                            add post buttoon
-                        -->
-                        <a href="#" class="font_class pe-4" id="post_modal_btnid" data-bs-toggle="modal"><span><img src="{% static 'images/plus-square-fill.svg' %} " height="30px" width="30px" class="rounded-4 m-2"></span><span class="vertical_align">What's in your Mind</span></a>
-                        <!--
-                            edit profile button
-                        -->
-                        <a href="#" class="font_class" id="editprofile_modal_btnid" data-bs-toggle="modal"><span><img src="{% static 'images/person-circle (1).svg' %}" height="30px" width="30px" class="rounded-4 m-2"></span><span class="vertical_align">Profile</span></a>
-                    </div>
-                <div class="col-1"></div>
-            </div>
+    <div class="footer">
+        <div class="row">
+            <div class="col-1"></div>
+                <div class="col-10 d-flex justify-content-center">
+                    <!--
+                        main news feed pahe
+                    -->
+                    <a href="#" class="font_class pe-4"><span><img src="{% static 'images/house-door-fill.svg'%}" height="30px" width="30px" class="rounded-4 m-2"></span><span class="vertical_align">News Feed</span></a>
+                    <!--
+                        add post buttoon
+                    -->
+                    <a href="#" class="font_class pe-4" id="post_modal_btnid" data-bs-toggle="modal"><span><img src="{% static 'images/plus-square-fill.svg' %} " height="30px" width="30px" class="rounded-4 m-2"></span><span class="vertical_align">What's in your Mind</span></a>
+                    <!--
+                        edit profile button
+                    -->
+                    <a href="#" class="font_class" id="editprofile_modal_btnid" data-bs-toggle="modal"><span><img src="{% static 'images/person-circle (1).svg' %}" height="30px" width="30px" class="rounded-4 m-2"></span><span class="vertical_align">Profile</span></a>
+                </div>
+            <div class="col-1"></div>
         </div>
-
+    </div>
 </body>
-<script>
-
-
-
-var app = angular.module('ShowPostApp', []);
-app.config(function($interpolateProvider) {
-    $interpolateProvider.startSymbol('{');
-    $interpolateProvider.endSymbol('}');
-  });
-
-app.controller('postCtrl', function($scope, $http) 
-{
-
-
-        //set user profile image
-        function showImage(img,target) {
-        var fr=new FileReader();
-        // when image is loaded, set the src of the image where you want to display it
-        fr.onload = function(e) { target.src = this.result; };
-        img.addEventListener("change",function() {
-        // fill fr with image data
-        fr.readAsDataURL(img.files[0]);
-        });
-        }
-
-                var src = document.getElementById("img");
-                var target = document.getElementById("target");
-                showImage(src,target);
-
-
-
-        //post image set preview
-        function showImage(post_img,post_target) {
-        var fr=new FileReader();
-        // when image is loaded, set the src of the image where you want to display it
-        fr.onload = function(e) { post_target.src = this.result; };
-        post_img.addEventListener("change",function() {
-          fr.readAsDataURL(post_img.files[0]);
-        });
-        }
-
-
-            var post_src = document.getElementById("post_img");
-            var target_post = document.getElementById("post_target");
-            showImage(post_src,target_post);
-
-
-
-        //post modal js
-let myModal = new bootstrap.Modal(document.getElementById('postmodal'))
-
-document.getElementById('post_modal_btnid').addEventListener('click', function() {
-myModal.show()    
-})
-
-
-// on modal if after click on release modal should hide 
-$('#post_close_modal').on("click",function()
-{
-$('#postmodal').modal('hide')   
-});
-
-
-// Edit Profile modals js
-let editprofilemodal = new bootstrap.Modal(document.getElementById('edit_profile_modal'))
-document.getElementById('editprofile_modal_btnid').addEventListener('click', function() {
-editprofilemodal.show()
-})
-
-
-
-        //on click button of closr edit profile button should hide
-        $('#close_edit_profile_modal').on("click",function()
-        {
-        $('#edit_profile_modal').modal('hide');
-        });
-
-
-
-
-// edit profile AJAX
-$(document).on("submit", "#edit_profile_form", function (event) {
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    var formData = new FormData(this);
-    $.ajax({
-        method: 'PATCH',
-        headers: {'X-CSRFToken': '{{ csrf_token }}'},
-        url: "/postpage/",
-        data: formData,
-        contentType: false,
-        success: function (data){
-            if(data){
-               alert("edit user.")
-                }  
-        },
-        error: function() {
-            alert('enter a valid data')
-        }, 
-        cache: false,
-        contentType: false,
-        processData: false
-    });
-    return false;
-})
-
-
-
-
-
-    function loadLikesFunc (action, postId){
-        console.log(action, postId)
-        if(action == "like")
-            {
-                $("#heart_"+postId).html('<i class="fa fa-heart" aria-hidden="true" onclick="likefunc('+postId+')"></i>');
-                $("#yourlike_"+postId).html("you and");
-            }
-        else if(action == "dislike")    
-            {
-                $("#heart_"+postId).html('<i class="fa fa-heart-o" aria-hidden="true" onclick="likefunc('+postId+')"></i>');
-                $("#yourlike_"+postId).remove();
-            }
-        }  
-   
-        
-
-    $scope.ajaxGet = function(url, callback=null){
-        $http.get(url).then(function (response) 
-            {
-                if (callback){
-                    callback(response)
-                }
-            
-            });
-        }
-
-    $scope.myPostData = []
-    $scope.getPostData = function(loadLikes=null, postId=null, action=null){
-        $scope.ajaxGet('/postpage/', function(response){
-            $scope.myPostData = response.data.PostData;  
-
-        })
-    
-
-        /*$http.get('/postpage/').then(function (response) 
-        {
-           $scope.myPostData = response.data.PostData;  
-           
-        });*/
-
-       if (loadLikes){
-        setTimeout(function(){
-            
-            loadLikesFunc(action, postId)
-        }, 200);
-       }
-    }
-    $scope.getPostData()
-    $scope.GetAllLikes = function(postid)
-    {
-        $scope.LikesData = []
-        $scope.ajaxGet('/like/' + postid +'/',function(responce)
-        {
-            $scope.LikesData = response.data.GetLikes;    
-        })
-        /*$http.get('like/' + postid +'/').then(function (response)  
-        {
-          $scope.LikesData = response.data.GetLikes; 
-          
-     });*/
-   }
-
-    likefunc = function(postId){
-
-        var formData = new FormData();
-        $.ajax({
-          method: 'PATCH',
-          headers: {'X-CSRFToken': '{{ csrf_token }}'},
-          url:'like/' + postId+ '/',
-          data: formData,
-          contentType: false,
-          success: function (data){
-              if(data){
-                $scope.getPostData(true, postId, data["action"])
-                
-            }
-          },  
-          error: function() {
-              alert('enter a valid data')
-          }, 
-          cache: false,
-          contentType: false,
-          processData: false
-       });
-      return false;
-      
-      };
-
-      $scope.likefuncScop = function(postId){
-        likefunc(postId)
-      }
-
-    $(document).on("submit", "#post_form", function (event) {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        var formData = new FormData(this);
-    
-        $.ajax({
-            method: 'POST',
-            headers: {'X-CSRFToken': '{{ csrf_token }}'},
-            url: "/postpage/",
-            data: formData,
-            contentType: false,
-            success: function (data){
-                if(data){
-                    $scope.funcgetPostDatad()
-                    }  
-            },
-            error: function() {
-                alert('enter a valid data')
-            }, 
-            cache: false,
-            contentType: false,
-            processData: false
-        });
-        return false;
-    })
-    
-
-    $scope.GetAllComment = function(postid)
-    {
-        $scope.CommentData = []
-        $scope.ajaxGet('post/' + postid +'/',function(responce)
-        {
-            $scope.CommentData = response.data.GetComments; 
-        })
-        /*$http.get('post/' + postid +'/comments/').then(function (response)  
-        {
-          $scope.CommentData = response.data.GetComments; 
-          
-     });*/
-   }
-
-    
-    //savecomment and show comment
-    $scope.SaveComment = function(postId)
-    {  
-        var formData = new FormData();
-        formData.append('description', $('#description_'+postId).val())
-        formData.append('post', postId)
-        $.ajax({
-            method: 'POST',
-            headers: {'X-CSRFToken': '{{ csrf_token }}'},
-            url: "/savecomment/",
-            data: formData,
-            contentType: false,
-            success: function (data){
-                if(data){
-                    $scope.getPostData()
-                  
-                 }  
-            },  
-            error: function() {
-                alert('enter a valid data')
-            }, 
-            cache: false,
-            contentType: false,
-            processData: false
-         });
-        return false;
-    }
-   
-
-});
-</script>
 </html>
+
+<script>
+    csrfFunc("{{csrf_token}}")
+
+
+
+</script>
