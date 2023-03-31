@@ -1,5 +1,3 @@
-
-
 var csrfToken = null
 
 function csrfFunc(token) {
@@ -46,8 +44,6 @@ app.controller('postCtrl', function($scope, $http) {
     var post_src = document.getElementById("post_img");
     var target_post = document.getElementById("post_target");
     showImage(post_src, target_post);
-
-
 
     //post modal js
     let myModal = new bootstrap.Modal(document.getElementById('postmodal'))

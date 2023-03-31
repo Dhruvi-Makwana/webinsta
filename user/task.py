@@ -17,7 +17,7 @@ sleeplogger = get_task_logger(__name__)
 
 @shared_task()
 def my_first_task(mail):
-    subject = 'Instagram account created successfully...'
+    subject = 'Create Account...'
     message = 'Your account has been registered in instagram.'
     receivers = [mail]
     send_mail(subject, message, EMAIL_HOST_USER, receivers, fail_silently=False)
