@@ -1,9 +1,9 @@
 from django.shortcuts import render
 from rest_framework import status
-from .models import User,PostImage, Post, Comment
+from .models import User, PostImage, Post, Comment
 from rest_framework.response import Response
 from .serializer import UserSerializer, LoginSerializer, \
-    PostSerializer, PostImageSerializer, Commentserializer, SaveCommentserializer, LikeSerializer
+    PostSerializer, Commentserializer, SaveCommentserializer
 from rest_framework.views import APIView
 from rest_framework.renderers import TemplateHTMLRenderer
 from django.shortcuts import redirect, reverse

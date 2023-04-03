@@ -26,8 +26,6 @@ app.controller('postCtrl', function($scope, $http) {
     var target = document.getElementById("target");
     showImage(src, target);
 
-
-
     //post image set preview
     function showImage(post_img, post_target) {
         var fr = new FileReader();
@@ -66,9 +64,6 @@ app.controller('postCtrl', function($scope, $http) {
     $('#close_edit_profile_modal').on("click", function() {
         $('#edit_profile_modal').modal('hide');
     });
-
-
-
     // edit profile AJAX
     $(document).on("submit", "#edit_profile_form", function(event) {
         event.preventDefault();
@@ -77,7 +72,6 @@ app.controller('postCtrl', function($scope, $http) {
             alert("edit user.")
         })
     })
-
     function loadLikesFunc(action, postId) {
         console.log(action, postId)
         if (action == "like") {
@@ -88,18 +82,12 @@ app.controller('postCtrl', function($scope, $http) {
             $("#yourlike_" + postId).remove();
         }
     }
-
-
-
     $scope.ajaxGet = function(url, callback = null, postid = null) {
         $http.get(url).then(function(response) {
             if (callback) {
-                callback(response)
-            }
-
+                callback(response)}
         });
     }
-
     $scope.myPostData = []
     $scope.getPostData = function(loadLikes = null, postId = null, action = null) {
         $scope.ajaxGet('/postpage/', function(response) {
@@ -141,8 +129,6 @@ app.controller('postCtrl', function($scope, $http) {
             $scope.getPostData()
         })
     })
-
-
     $scope.GetAllComment = function(postid) {
         $scope.CommentData = []
         $http.get('post/' + postid + '/comments/').then(function(response) {
@@ -159,5 +145,4 @@ app.controller('postCtrl', function($scope, $http) {
             $scope.getPostData()
         })
     }
-
 });

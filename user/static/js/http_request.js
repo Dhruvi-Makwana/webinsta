@@ -21,7 +21,4 @@ function makeAjaxRequest(methodType, csrfToken, url, data, callback)
         contentType: false,
         processData: false
     });
-
-
-
 }
