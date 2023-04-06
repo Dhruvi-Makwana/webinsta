@@ -13,8 +13,14 @@
     <script src="https://use.fontawesome.com/0206006232.js"></script>
     <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
     <script src="https://use.fontawesome.com/0206006232.js"></script>
-    <script src="{% static 'js/http_request.js' %}"></script>
-    
+    <script src="{% static 'js/http_request.js'%}"></script>        
+    <script src="https://www.gstatic.com/firebasejs/8.4.2/firebase-app.js"></script>
+    <!-- Add Firebase products that you want to use -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.4.3/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.4.3/firebase-firestore.js"></script>
+  
+    <script src="{% static 'js/firebase_config.js/' %}"></script>
     <link rel="stylesheet" href="{% static 'css/base.css' %}"  type="text/css">
     <script src="{% static 'js/base.js' %}"></script>
     <title>Instagram</title>
@@ -222,7 +228,7 @@
               </div>
             </div>
         </div>
-        
+
          <!--  Edit profile modal -->
 
 
@@ -293,4 +299,25 @@
 
 <script>
     csrfFunc("{{csrf_token}}")
+    {% comment %} deleteDoc("posts", "post_") {% endcomment %}
+   
+    //createDocs("post_collection","first_post")
+
 </script>
+
+
+
+
+
+
+
+
+
+
+
+  
+   {% comment %} var docRef = db.collection("instagram").doc("hello_123");
+     docRef.set({
+        }) 
+    db.collection('instagram').doc('hello_123').delete(); {% endcomment %}
+  

@@ -64,6 +64,11 @@ app.controller('postCtrl', function($scope, $http) {
     $('#close_edit_profile_modal').on("click", function() {
         $('#edit_profile_modal').modal('hide');
     });
+
+
+
+
+
     // edit profile AJAX
     $(document).on("submit", "#edit_profile_form", function(event) {
         event.preventDefault();
@@ -72,6 +77,10 @@ app.controller('postCtrl', function($scope, $http) {
             alert("edit user.")
         })
     })
+
+
+
+
     function loadLikesFunc(action, postId) {
         console.log(action, postId)
         if (action == "like") {
@@ -92,6 +101,8 @@ app.controller('postCtrl', function($scope, $http) {
     $scope.getPostData = function(loadLikes = null, postId = null, action = null) {
         $scope.ajaxGet('/postpage/', function(response) {
             $scope.myPostData = response.data.PostData;
+
+            
         })
 
         if (loadLikes) {
@@ -114,6 +125,8 @@ app.controller('postCtrl', function($scope, $http) {
     likefunc = function(postId) {
         makeAjaxRequest('PATCH',csrfToken,'like/' + postId + '/', new FormData(), function(response){
             if(response){$scope.getPostData(true, postId, response["action"])}
+               
+            //createDocs("like_"+response.id,"like_"+response.email, response)
         })
     };
 
@@ -121,14 +134,23 @@ app.controller('postCtrl', function($scope, $http) {
         likefunc(postId)
     }
 
+
+   
+
     $(document).on("submit", "#post_form", function(event) {
         event.preventDefault();
         event.stopImmediatePropagation();
-     
-        makeAjaxRequest('POST',csrfToken,"/postpage/", new FormData(this), function(response){
+        var formdata =  new FormData(this)
+
+        makeAjaxRequest('POST',csrfToken,"/postpage/", formdata, function(response){
             $scope.getPostData()
-        })
+                createDocs("posts","post_"+response.id, response)      
+        })  
     })
+
+
+
+
     $scope.GetAllComment = function(postid) {
         $scope.CommentData = []
         $http.get('post/' + postid + '/comments/').then(function(response) {
@@ -143,6 +165,22 @@ app.controller('postCtrl', function($scope, $http) {
         formData.append('post', postId)
         makeAjaxRequest('POST', csrfToken,"/savecomment/",formData, function(response){
             $scope.getPostData()
+            createDocs("comments_"+response.post_id,"comment_"+response.id, response)
         })
     }
 });
+
+
+
+
+
+
+
+
+ /*var object = {};
+            
+            formdata.forEach((value, key) => object[key] = value);
+            var getJson = JSON.stringify(object);
+            var data = JSON.parse(getJson); 
+            // alert(getJson)
+            // createDocs("posts","post_15", data)*/

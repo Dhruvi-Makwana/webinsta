@@ -45,7 +45,7 @@ class Commentserializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ('description', 'post', 'commented_by', 'created_at')
+        fields = ('id', 'description', 'post', 'commented_by', 'created_at')
 
     def get_commented_by(self, obj):
         return UserSerializer(instance=obj.commented_by).data
@@ -76,7 +76,7 @@ class PostSerializer(serializers.ModelSerializer):
 class SaveCommentserializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
-        fields = ('description', 'post', 'commented_by')
+        fields = ('id', 'description', 'post', 'commented_by')
 
 
 class LikeSerializer(serializers.ModelSerializer):

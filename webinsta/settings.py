@@ -144,3 +144,5 @@ EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'dhruvi.makwana@trootech.com'
 EMAIL_HOST_PASSWORD = 'Mj@ku$31'
+
+SITE_URL = 'http://127.0.0.1:8000'

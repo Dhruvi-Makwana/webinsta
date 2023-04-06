@@ -13,6 +13,8 @@ from django.contrib.auth import login, logout
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.http import JsonResponse
 from user.task import my_first_task
+from django.conf import settings
+from collections import OrderedDict
 
 
 class RegisterView(APIView):
@@ -86,7 +88,11 @@ class PostPage(APIView):
         post_serializer.is_valid()
         get_post = post_serializer.save()
         PostImage.objects.create(images=request.data['images'], post=get_post)
-        return Response({'post_id': post_serializer.data}, status=status.HTTP_201_CREATED)
+        print(post_serializer.data)
+        data = post_serializer.data
+        image = OrderedDict()
+        image['images'] = settings.SITE_URL+data['post_image'][0]['images']
+        return JsonResponse({'id': data['id'], "content": data['content'], 'image': image['images']})
 
     def patch(self, request, *args, **kwargs):
 
@@ -116,8 +122,12 @@ class SaveComments(APIView):
         data['commented_by'] = user.id
         comment = SaveCommentserializer(data=data)
         comment.is_valid()
-        comment.save()
-        return Response({'comment_id': comment.data}, status=status.HTTP_201_CREATED)
+        comment_obj = comment.save()
+        # data = comment.data
+
+        return JsonResponse({'id': comment_obj.id, 'description':comment_obj.description,
+                             'post_id': comment_obj.post.id, 'user': comment_obj.commented_by.username,
+                             'user_profile': settings.SITE_URL+comment_obj.commented_by.profile.url})
 
 
 class LikeFeature(APIView):
@@ -135,7 +145,12 @@ class LikeFeature(APIView):
             return Response({'action': 'dislike'})
         else:
             post_obj.likes.add(user)
-            return Response({'action': 'like'})
+            return JsonResponse({'action': 'like', 'id': kwargs.get('pk'), 'user': list(post_obj.likes.values_list('username', flat=True)),
+                                 'email': list(post_obj.likes.values_list('email', flat=True)),
+                                 'profile': list(post_obj.likes.values_list('profile', flat=True))})
+            # return JsonResponse({'action': 'like', 'id': kwargs.get('pk'), 'user': list(post_obj.likes.values_list('username', 'email', 'profile'))})
+# ,'user':list(post_obj.likes)
+
 
 
 class LogoutView(APIView):
