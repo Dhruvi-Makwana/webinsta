@@ -92,7 +92,8 @@ class PostPage(APIView):
         data = post_serializer.data
         image = OrderedDict()
         image['images'] = settings.SITE_URL+data['post_image'][0]['images']
-        return JsonResponse({'id': data['id'], "content": data['content'], 'image': image['images']})
+        return JsonResponse({'id': data['id'], "content": data['content'], 'image': image['images'],
+                             'username': user.username, 'user_profile': settings.SITE_URL+user.profile.url})
 
     def patch(self, request, *args, **kwargs):
 
@@ -127,7 +128,8 @@ class SaveComments(APIView):
 
         return JsonResponse({'id': comment_obj.id, 'description':comment_obj.description,
                              'post_id': comment_obj.post.id, 'user': comment_obj.commented_by.username,
-                             'user_profile': settings.SITE_URL+comment_obj.commented_by.profile.url})
+                             'user_profile': settings.SITE_URL+comment_obj.commented_by.profile.url,
+                             'created_at': comment_obj.created_at})
 
 
 class LikeFeature(APIView):
@@ -140,17 +142,20 @@ class LikeFeature(APIView):
     def patch(self, request, *args, **kwargs):
         post_obj = Post.objects.get(pk=kwargs.get('pk'))
         user = request.user
+        context = {'action': ""}
+
         if user in post_obj.likes.all():
             post_obj.likes.remove(user)
-            return Response({'action': 'dislike'})
+            context["action"] = "dislike"
         else:
             post_obj.likes.add(user)
-            return JsonResponse({'action': 'like', 'id': kwargs.get('pk'), 'user': list(post_obj.likes.values_list('username', flat=True)),
-                                 'email': list(post_obj.likes.values_list('email', flat=True)),
-                                 'profile': list(post_obj.likes.values_list('profile', flat=True))})
+            context["action"] = "like"
+            # return JsonResponse({'action': 'like'})
+
+        context.update({'response': {'user': user.get_full_name(), 'email': user.email, 'profile': settings.SITE_URL+str(user.profile.url)}})
+        return JsonResponse(context)
             # return JsonResponse({'action': 'like', 'id': kwargs.get('pk'), 'user': list(post_obj.likes.values_list('username', 'email', 'profile'))})
 # ,'user':list(post_obj.likes)
-
 
 
 class LogoutView(APIView):

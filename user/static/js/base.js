@@ -1,3 +1,4 @@
+
 var csrfToken = null
 
 function csrfFunc(token) {
@@ -98,12 +99,42 @@ app.controller('postCtrl', function($scope, $http) {
         });
     }
     $scope.myPostData = []
+    function retrieveData(getCollection) {
+        var db = RTEService.prototype.getFirestore();
+        var postsRef = db.collection(getCollection);
+    
+        postsRef.get().then(querySnapshot => {
+      
+            querySnapshot.docs.forEach(postDoc => {
+            var post = postDoc.data();
+            var postId = post.id;   
+      
+                var commentsRef = db.collection('comments_' + postId).limit(2);
+                //  db.collection('comments_' + postId).orderBy("desc").limit(2);
+                commentsRef.get().then(commentsQuerySnapshot => {
+                var comments = commentsQuerySnapshot.docs.map(commentDoc => commentDoc.data());
+                //adding key comments in post
+                post.comments = comments;
+                });	
+      
+                var likesRef = db.collection('like_' + postId);
+                likesRef.get().then(likesQuerySnapshot => {
+                var likes = likesQuerySnapshot.docs.map(likeDoc => likeDoc.data());
+                //adding key of likes
+                post.likes = likes;
+             
+                    $scope.$apply(function (){
+                        $scope.myPostData.push(post)
+                        console.log($scope.myPostData)
+                    })
+                });
+          });
+        });
+    }   
+    
     $scope.getPostData = function(loadLikes = null, postId = null, action = null) {
-        $scope.ajaxGet('/postpage/', function(response) {
-            $scope.myPostData = response.data.PostData;
-
-            
-        })
+         retrieveData("posts")
+        
 
         if (loadLikes) {
             setTimeout(function() {
@@ -113,6 +144,7 @@ app.controller('postCtrl', function($scope, $http) {
         }
     }
     $scope.getPostData()
+
 
     $scope.GetAllLikes = function(postid) {
         $scope.LikesData = []
@@ -124,10 +156,18 @@ app.controller('postCtrl', function($scope, $http) {
     //onclick like is done
     likefunc = function(postId) {
         makeAjaxRequest('PATCH',csrfToken,'like/' + postId + '/', new FormData(), function(response){
-            if(response){$scope.getPostData(true, postId, response["action"])}
-               
-            //createDocs("like_"+response.id,"like_"+response.email, response)
+            
+            let likesSchemaname = "like_"+postId
+            let likeDocName =  response.response.email
+            if(response["action"] == "like"){
+                createDocs(likesSchemaname,likeDocName, response.response)   
+            }
+            else{
+                deleteDoc(likesSchemaname, likeDocName)
+            }
+
         })
+
     };
 
     $scope.likefuncScop = function(postId) {
@@ -144,7 +184,8 @@ app.controller('postCtrl', function($scope, $http) {
 
         makeAjaxRequest('POST',csrfToken,"/postpage/", formdata, function(response){
             $scope.getPostData()
-                createDocs("posts","post_"+response.id, response)      
+             createDocs("posts","post_"+response.id, response)   
+                
         })  
     })
 
@@ -171,16 +212,3 @@ app.controller('postCtrl', function($scope, $http) {
 });
 
 
-
-
-
-
-
-
- /*var object = {};
-            
-            formdata.forEach((value, key) => object[key] = value);
-            var getJson = JSON.stringify(object);
-            var data = JSON.parse(getJson); 
-            // alert(getJson)
-            // createDocs("posts","post_15", data)*/
