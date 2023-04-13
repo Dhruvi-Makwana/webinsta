@@ -79,73 +79,116 @@ app.controller('postCtrl', function($scope, $http) {
         })
     })
 
-
-
-
-    function loadLikesFunc(action, postId) {
-        console.log(action, postId)
-        if (action == "like") {
-            $("#heart_" + postId).html('<i class="fa fa-heart" aria-hidden="true" onclick="likefunc(' + postId + ')"></i>');
-            $("#yourlike_" + postId).html("you and");
-        } else if (action == "dislike") {
-            $("#heart_" + postId).html('<i class="fa fa-heart-o" aria-hidden="true" onclick="likefunc(' + postId + ')"></i>');
-            $("#yourlike_" + postId).remove();
-        }
-    }
+    // function loadLikesFunc(action, postId) {
+    //     console.log(postId)
+    //     if (action == "like") {
+    //         $("#heart_" + postId).html('<i class="fa fa-heart" aria-hidden="true" onclick="likefunc(' + postId + ')"></i>');
+    //         $("#yourlike_" + postId).html("you and");
+    //     } else if (action == "dislike") {
+    //         $("#heart_" + postId).html('<i class="fa fa-heart-o" aria-hidden="true" onclick="likefunc(' + postId + ')"></i>');
+    //         $("#yourlike_" + postId).remove();
+    //     }
+    // }
     $scope.ajaxGet = function(url, callback = null, postid = null) {
         $http.get(url).then(function(response) {
             if (callback) {
                 callback(response)}
         });
     }
+   
+   
     $scope.myPostData = []
-    function retrieveData(getCollection) {
+
+   function retrieveData(getCollection,callback) {
         var db = RTEService.prototype.getFirestore();
-        var postsRef = db.collection(getCollection);
-    
+        var postsRef = db.collection(getCollection)
         postsRef.get().then(querySnapshot => {
-      
+            var promises = [];  
+            
+            
+           
             querySnapshot.docs.forEach(postDoc => {
-            var post = postDoc.data();
-            var postId = post.id;   
-      
-                var commentsRef = db.collection('comments_' + postId).limit(2);
-                //  db.collection('comments_' + postId).orderBy("desc").limit(2);
-                commentsRef.get().then(commentsQuerySnapshot => {
+                
+                var post = postDoc.data();
+                var postId = post.id;   
+                var commentsRef =  db.collection('comments_' + postId).limit(2);
+
+                //  db.collection('comments_' + postId).orderBy('desc').limit(2);
+                var commentsPromise = commentsRef.get().then(commentsQuerySnapshot => {
                 var comments = commentsQuerySnapshot.docs.map(commentDoc => commentDoc.data());
-                //adding key comments in post
                 post.comments = comments;
                 });	
-      
+                
+
                 var likesRef = db.collection('like_' + postId);
-                likesRef.get().then(likesQuerySnapshot => {
+                var likesPromise = likesRef.get().then(likesQuerySnapshot => {
                 var likes = likesQuerySnapshot.docs.map(likeDoc => likeDoc.data());
-                //adding key of likes
                 post.likes = likes;
-             
-                    $scope.$apply(function (){
-                        $scope.myPostData.push(post)
-                        console.log($scope.myPostData)
-                    })
+                
                 });
-          });
+                promises.push(Promise.all([commentsPromise, likesPromise]).then(() => {
+                    return post;
+                }));
+                    // $scope.$apply(function (){
+                    // $scope.myPostData.push(post)
+            
+                    // });
+                    Promise.all(promises).then(posts => {
+                        callback(posts);
+                    });
+            });
+
         });
     }   
     
-    $scope.getPostData = function(loadLikes = null, postId = null, action = null) {
-         retrieveData("posts")
-        
-
-        if (loadLikes) {
-            setTimeout(function() {
-
-                loadLikesFunc(action, postId)
-            }, 200);
+    RTEService.prototype.UpdatedPostData = function (callback) {
+        try{
+          var db = this.getFirestore();
+          db.collection("posts")
+            .onSnapshot((PostData) => {
+                retrieveData("posts", callback);
+            });
+        }catch(e){
+          console.log("error - snapshot is not working")
         }
-    }
+      };
+
+            var firstTime = true;
+            RTEService.prototype.UpdatedPostData(function (PostData) {
+                PostData.forEach((PostData) => {
+                    if (firstTime){
+                        firstTime=false;
+                    }
+                        
+                    // PostData = PostData.data();
+                    $scope.$apply(function(){
+                        // $scope.myPostData.push(PostData)
+                        console.log(PostData)
+                    })
+
+                });     
+            });
+
+     $scope.getPostData = function(loadLikes = null, postId = null, action = null) {
+       
+                if (firstTime){
+                    retrieveData("posts", function(posts)
+                    {
+                        
+                        firstTime=false;
+                        $scope.myPostData = posts;
+                        return;
+                    });
+                   
+                }
+                // if (loadLikes) {
+                //     setTimeout(function() {       
+                //         loadLikesFunc(action, postId)
+                //     }, 200); 
+                // }
+        }
+    
     $scope.getPostData()
-
-
     $scope.GetAllLikes = function(postid) {
         $scope.LikesData = []
         $scope.ajaxGet('like/' + postid + '/', function(response) {
@@ -153,17 +196,25 @@ app.controller('postCtrl', function($scope, $http) {
         })
     }
 
+
     //onclick like is done
     likefunc = function(postId) {
         makeAjaxRequest('PATCH',csrfToken,'like/' + postId + '/', new FormData(), function(response){
-            
+            console.log(response["action"])
             let likesSchemaname = "like_"+postId
             let likeDocName =  response.response.email
             if(response["action"] == "like"){
-                createDocs(likesSchemaname,likeDocName, response.response)   
+                //  $("#yourlike_" + postId).html("you and");  
+                $("#heart_" + postId).html('<i class="fa fa-heart" aria-hidden="true" onclick="likefunc(' + postId + ')"></i>');
+                createDocs(likesSchemaname,likeDocName, response.response);
+                
+               
             }
             else{
                 deleteDoc(likesSchemaname, likeDocName)
+                $("#heart_" + postId).html('<i class="fa fa-heart-o" aria-hidden="true" onclick="likefunc(' + postId + ')"></i>');
+                $("#yourlike_" + postId).remove();
+                console.log(postId)
             }
 
         })
@@ -171,6 +222,7 @@ app.controller('postCtrl', function($scope, $http) {
     };
 
     $scope.likefuncScop = function(postId) {
+        console.log(postId)
         likefunc(postId)
     }
 
@@ -184,7 +236,7 @@ app.controller('postCtrl', function($scope, $http) {
 
         makeAjaxRequest('POST',csrfToken,"/postpage/", formdata, function(response){
             $scope.getPostData()
-             createDocs("posts","post_"+response.id, response)   
+            createDocs("posts","post_"+response.id, response)   
                 
         })  
     })
@@ -210,5 +262,3 @@ app.controller('postCtrl', function($scope, $http) {
         })
     }
 });
-
-

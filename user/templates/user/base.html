@@ -61,7 +61,7 @@
                     </div>
                 </div>
                 <!--
-                    post footer to which contain comment and caption
+                    post footer to which contain like, comment and caption
                 -->
                 <div class="card-footer">
                     <div class="row">
@@ -70,12 +70,12 @@
                     
                             <h7 class="ms-1 fw-bold" ng-bind="showdata.likes.length"></h7><!--ng-bind="showdata.likes"-->
                             <h7 class="like_font ps-2">liked by</h7>
-                            <h7 class="mb-1 like_font" id="yourlike_{showdata.id}">you and</h7>
+                            <h7 class="mb-1 like_font" id="yourlike_{showdata.id}"></h7>
                             <a href="#" class="text-success mb-1 like_font" data-bs-toggle="modal" data-bs-target="#likedmodal" ng-click="GetAllLikes(showdata.id)">others</a>
                         </div>
                     </div>           
 
-                           <!--like modal-->
+                           <!--like modal--> 
 
                     <div class="modal fade" id="likedmodal">
                         <div class="modal-dialog">
@@ -111,7 +111,7 @@
                         <!--post coption-->
                         <div class="mt-2 ms-3">
                             
-                           <span><h6 ng-bind="showdata.content" class="font_class mt-1 fst-italic fw-bold pe-3 ms-4"></h6></span><!--ng-bind="showdata.content"-->
+                           <span><h6 ng-bind="showdata.content" class="font_class mt-1 fst-italic fw-bold pe-3 ms-4"></h6></span>
                         </div>
                         <!--
                            to add comment
